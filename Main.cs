@@ -15,9 +15,10 @@ namespace Wox.Plugin.OpenCMD
     {
         private PluginInitContext context;
         private static List<SystemWindow> openingWindows = new List<SystemWindow>();
+        private readonly string[] names = new string[3] { "git", "PowerShell", "cmd" };
 
         static Main()
-        {
+        {            
             // use to auto load Interop.SHDocVw.dll from resources
             // only copy to plugin folder can not load correctly
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
@@ -48,12 +49,30 @@ namespace Wox.Plugin.OpenCMD
                             continue;
 
                         // immediately open the windows command
+                        //if (win.HWnd == (IntPtr)window.HWND)
+                        //{
+                        //    var path = window.LocationURL.Replace("file:///", "");
+                        //    StartShell(path);
+                        //    this.context.API.HideApp();
+                        //    return list;
+                        //}
                         if (win.HWnd == (IntPtr)window.HWND)
                         {
                             var path = window.LocationURL.Replace("file:///", "");
-                            StartShell(path);
-                            this.context.API.HideApp();
-                            return list;
+                            foreach (String cmd in names)
+                            {
+                                list.Add(new Result()
+                                {
+                                    IcoPath = "Images\\" + cmd + ".png",
+                                    Title = path,
+                                    SubTitle = "Open →" + cmd + "← in this path",
+                                    Action = (c) =>
+                                    {
+                                        StartShell("-p \"" + cmd + "\" -d \"" + path +"\"");
+                                        return true;
+                                    }
+                                });
+                            }                            
                         }
                     }
 
@@ -76,17 +95,20 @@ namespace Wox.Plugin.OpenCMD
                         if (!Directory.Exists(path))
                             continue;
 
-                        list.Add(new Result()
+                        foreach (String cmd in names)
                         {
-                            IcoPath = "Images\\app.png",
-                            Title = path,
-                            SubTitle = "Open cmd in this path",
-                            Action = (c) =>
+                            list.Add(new Result()
                             {
-                                StartShell(path);
-                                return true;
-                            }
-                        });
+                                IcoPath = "Images\\" + cmd + ".png",
+                                Title = path,
+                                SubTitle = "Open →" + cmd + "← in this path",
+                                Action = (c) =>
+                                {
+                                    StartShell("-p \"" + cmd + "\" -d \"" + path +"\"");
+                                    return true;
+                                }
+                            });
+                        }
 
                     }
                 }
@@ -97,7 +119,7 @@ namespace Wox.Plugin.OpenCMD
 
         public void Init(PluginInitContext context)
         {
-            this.context = context;
+            this.context = context;            
         }
 
         private static void StartShell(string path)
@@ -108,8 +130,8 @@ namespace Wox.Plugin.OpenCMD
             {
                 Process.Start(new ProcessStartInfo()
                 {
-                    FileName = Path.Combine(cmder, "cmder.exe"),
-                    Arguments = "/START \"" + path + "\""
+                    FileName = Path.Combine(cmder, "wt.exe"),
+                    Arguments = path
                 });
             }
             else
@@ -119,7 +141,7 @@ namespace Wox.Plugin.OpenCMD
                     FileName = "cmd",
                     WorkingDirectory = path
                 });
-            }
+            } 
         }
 
         private static void GetOpeningWindows()
