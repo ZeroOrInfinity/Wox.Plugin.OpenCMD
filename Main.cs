@@ -15,7 +15,7 @@ namespace Wox.Plugin.OpenCMD
     {
         private PluginInitContext context;
         private static List<SystemWindow> openingWindows = new List<SystemWindow>();
-        private readonly string[] names = new string[3] { "git", "PowerShell", "cmd" };
+        private static readonly string[] names = new string[3] { "git", "PowerShell", "cmd" };
 
         static Main()
         {            
@@ -59,23 +59,9 @@ namespace Wox.Plugin.OpenCMD
                         if (win.HWnd == (IntPtr)window.HWND)
                         {
                             var path = window.LocationURL.Replace("file:///", "");
-                            foreach (String cmd in names)
-                            {
-                                list.Add(new Result()
-                                {
-                                    IcoPath = "Images\\" + cmd + ".png",
-                                    Title = path,
-                                    SubTitle = "Open →" + cmd + "← in this path",
-                                    Action = (c) =>
-                                    {
-                                        StartShell("-p \"" + cmd + "\" -d \"" + path +"\"");
-                                        return true;
-                                    }
-                                });
-                            }                            
-                        }
+                            GitCommandList(list, path);                            
+                        }                          
                     }
-
                 }
             }
 
@@ -95,26 +81,50 @@ namespace Wox.Plugin.OpenCMD
                         if (!Directory.Exists(path))
                             continue;
 
-                        foreach (String cmd in names)
-                        {
-                            list.Add(new Result()
-                            {
-                                IcoPath = "Images\\" + cmd + ".png",
-                                Title = path,
-                                SubTitle = "Open →" + cmd + "← in this path",
-                                Action = (c) =>
-                                {
-                                    StartShell("-p \"" + cmd + "\" -d \"" + path +"\"");
-                                    return true;
-                                }
-                            });
-                        }
+                        GitCommandList(list, path);                       
 
                     }
                 }
             }
+            GitCommandListOfUserPath(list);
 
             return list;
+        }
+
+        private void GitCommandList(List<Result> list, String path)
+        {
+            foreach (String cmd in names)
+            {
+                list.Add(new Result()
+                {
+                    IcoPath = "Images\\" + cmd + ".png",
+                    Title = path,
+                    SubTitle = "Open → " + cmd + " ← in this path",
+                    Action = (c) =>
+                    {
+                        StartShell("-p \"" + cmd + "\" -d \"" + path +"\"");
+                        return true;
+                    }
+                });
+            }            
+        }
+
+        private void GitCommandListOfUserPath(List<Result> list)
+        {
+            foreach (String cmd in names)
+            {
+                list.Add(new Result()
+                {
+                    IcoPath = "Images\\" + cmd + ".png",
+                    Title = "user default path ~",
+                    SubTitle = "Open → " + cmd + " ← in user default path",
+                    Action = (c) =>
+                    {
+                        StartShell("-p \"" + cmd + "\" -d .");
+                        return true;
+                    }
+                });
+            }
         }
 
         public void Init(PluginInitContext context)
