@@ -15,7 +15,7 @@ namespace Wox.Plugin.OpenCMD
     {
         private PluginInitContext context;
         private static List<SystemWindow> openingWindows = new List<SystemWindow>();
-        private static readonly string[] names = new string[3] { "git", "PowerShell", "cmd" };
+        private static string[] names;
 
         static Main()
         {            
@@ -49,13 +49,6 @@ namespace Wox.Plugin.OpenCMD
                             continue;
 
                         // immediately open the windows command
-                        //if (win.HWnd == (IntPtr)window.HWND)
-                        //{
-                        //    var path = window.LocationURL.Replace("file:///", "");
-                        //    StartShell(path);
-                        //    this.context.API.HideApp();
-                        //    return list;
-                        //}
                         if (win.HWnd == (IntPtr)window.HWND)
                         {
                             var path = window.LocationURL.Replace("file:///", "");
@@ -125,11 +118,26 @@ namespace Wox.Plugin.OpenCMD
                     }
                 });
             }
+            
         }
 
         public void Init(PluginInitContext context)
         {
-            this.context = context;            
+            this.context = context;
+            String appPath = context.CurrentPluginMetadata.ExecuteFilePath;
+            String settingFilePath = appPath.Substring(0, appPath.LastIndexOf("\\")) + "\\setting.info";
+            if (System.IO.File.Exists(settingFilePath))
+            {
+                names = System.IO.File.ReadAllLines(@settingFilePath);
+                for (int i = 0; i < names.Length; i++)
+                {
+                    names[i] = names[i].Trim();
+                }
+            }
+            else
+            {
+                names = new string[3] { "Windows PowerShell", "cmd", "git", };
+            }
         }
 
         private static void StartShell(string path)
