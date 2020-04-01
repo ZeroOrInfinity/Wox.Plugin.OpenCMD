@@ -86,13 +86,14 @@ namespace Wox.Plugin.OpenCMD
 
         private void GitCommandList(List<Result> list, String path)
         {
+            String currentDate = System.DateTime.Now.ToString();
             foreach (String cmd in names)
             {
                 list.Add(new Result()
                 {
                     IcoPath = "Images\\" + cmd + ".png",
                     Title = path,
-                    SubTitle = "Open → " + cmd + " ← in this path",
+                    SubTitle = "Open → " + cmd + " ← in this path. " + currentDate,
                     Action = (c) =>
                     {
                         StartShell("-p \"" + cmd + "\" -d \"" + path +"\"");
@@ -104,13 +105,14 @@ namespace Wox.Plugin.OpenCMD
 
         private void GitCommandListOfUserPath(List<Result> list)
         {
+            String currentDate = System.DateTime.Now.ToString();
             foreach (String cmd in names)
             {
                 list.Add(new Result()
                 {
                     IcoPath = "Images\\" + cmd + ".png",
                     Title = "user default path ~",
-                    SubTitle = "Open → " + cmd + " ← in user default path",
+                    SubTitle = "Open → " + cmd + " ← in user default path. " + currentDate,
                     Action = (c) =>
                     {
                         StartShell("-p \"" + cmd + "\" -d .");
