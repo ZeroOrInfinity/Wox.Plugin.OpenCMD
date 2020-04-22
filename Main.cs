@@ -115,7 +115,7 @@ namespace Wox.Plugin.OpenCMD
                     SubTitle = "Open → " + cmd + " ← in user default path. " + currentDate,
                     Action = (c) =>
                     {
-                        StartShell("-p \"" + cmd + "\" -d .");
+                        StartShell("-p \"" + cmd + "\"");
                         return true;
                     }
                 });
